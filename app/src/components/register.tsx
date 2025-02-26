@@ -1,30 +1,31 @@
 import React from "react";
 import { useState } from "react";
 
-interface LoginProps {
-  onLogin: (token: string, email: string) => void;
+interface RegisterProps {
   token: string;
   isAuthenticated: boolean;
 }
 
-const Login: React.FC<LoginProps> = ({ onLogin, token , isAuthenticated}) => {
+const Register: React.FC<RegisterProps> = ({ token, isAuthenticated}) => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  async function loginUser(user: any) {
-    const response = await fetch("http://localhost:3000/api/login", {
+  async function registerUser(user: any) {
+    const response = await fetch("http://localhost:3000/api/register", {
       method: "post",
       headers: {
         "Content-type": "application/json",
         Authorization: `Bearer ${token}`,
+        
       },
       body: JSON.stringify(user),
     });
     const resJson = await response.json();
+    console.log(resJson);
     if (response.ok) {
-      setMessage("Account login successful. Refresh page to make sure everything works");
-      onLogin(resJson.token, resJson.email);
+      setMessage("Account succesfully created!");
     } else {
       setMessage(resJson.msg);
     }
@@ -32,17 +33,26 @@ const Login: React.FC<LoginProps> = ({ onLogin, token , isAuthenticated}) => {
 
   const handleSubmit = (event: any) => {
     event.preventDefault();
-    const user = { email, password };
-    loginUser(user);
+    const user = { username, email, password };
+    registerUser(user);
   };
 
   if (isAuthenticated) {
-    return <div>Please log out to see this page. Refresh to make sure authorization works correctly.</div>;
+    return <div>Please log out to see this page.</div>;
   }
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
+        <div>
+          <label>Username:</label>
+          <input
+            type="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+        </div>
         <div>
           <label>Email:</label>
           <input
@@ -66,6 +76,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, token , isAuthenticated}) => {
       <p>{message}</p>
     </div>
   );
-};
+}
 
-export default Login;
+export default Register;
